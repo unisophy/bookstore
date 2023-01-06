@@ -12,13 +12,23 @@ public:
     String(const char* p) {
         int length;
         length = strlen(p);
-        for (int i = 0; i < length; ++i) {
+        for (int i = 0; i < length; i++) {
             s[i] = p[i];
         }
         s[length] = '\0';
     }
+    String(const std::string str) {
+        int i;
+        for (i = 0; str[i] != '\0'; i++) {
+            s[i] = str[i];
+        }
+        s[i] = '\0';
+    }
     friend bool operator<(const String &a, const String &b) {
         return (strcmp(a.s, b.s) < 0);
+    }
+    friend bool operator>(const String &a, const String &b) {
+        return (strcmp(a.s, b.s) > 0);
     }
     friend bool operator==(const String &a, const String &b) {
         return (strcmp(a.s, b.s) == 0);
@@ -27,7 +37,10 @@ public:
         return (!(a == b));
     }
     friend bool operator<=(const String &a, const String &b) {
-        return (a < b) || (a == b);
+        return !(a > b);
+    }
+    friend bool operator>=(const String &a, const String &b) {
+        return !(a < b);
     }
     friend std::ostream& operator<<(std::ostream &os, const String &a) {
         os << a.s;
@@ -43,6 +56,11 @@ struct element {
         str = a;
         value = b;
     }
+    element(const std::string &a, const int &b) {
+        value = b;
+        String c(a);
+        str = c;
+    }
     friend bool operator==(const element &a, const element &b) {
         if (a.str != b.str) {return false;}
         return a.value == b.value;
@@ -52,7 +70,7 @@ struct element {
         return a.value < b.value;
     }
     friend bool operator>(const element &a, const element &b) {
-        if (a.str == b.str) {return !(a.str < b.str);}
+        if (a.str != b.str) {return (a.str > b.str);}
         return a.value > b.value;
     }
     friend bool operator<=(const element &a, const element &b) {
@@ -258,24 +276,26 @@ public:
         }
     }
 
-    void Find(const String &index) {
+    void Find(const String &index, bool judge, std::vector<int>vec;) {
         block b;
         int now_position = 0;
-        bool judge = false;
+        judge = false;
         while(true) {
             if (now_position == -1) {break;}
             readoutApart(now_position,b);
             if (b.size == 0) {
                 now_position = b.next;
                 continue;
-            } else if (b.minele.str <= index && index <= b.maxele.str) {
+            } else if (index >= b.minele.str && index <= b.maxele.str) {
                 readout(now_position,b);
                 for (int i = 0; i < b.size; ++i) {
                     if (b.e[i].str == index) {
                         judge = true;
+                        vec.push_back(b.e[i].value);
                         std::cout << b.e[i].value << " ";
                     }
                 }
+                now_position = b.next;
             } else if (index < b.minele.str) {
                 break;
             }
@@ -287,7 +307,6 @@ public:
             std::cout << "\n";
         }
     }
-
 };
 
 int main() {
@@ -313,8 +332,8 @@ int main() {
             jzx.Delete(e);
         } else if (operation == "find") {
             scanf("%s", index);
-            String s(index);
-            jzx.Find(index);
+            bool j;
+            jzx.Find(index,j);
         }
     }
 }
